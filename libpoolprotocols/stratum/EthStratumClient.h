@@ -18,19 +18,13 @@ using namespace std;
 using namespace dev;
 using namespace dev::eth;
 
-enum class StratumSecure
-{
-	NONE,
-	TLS12,
-	TLS,
-	ALLOW_SELFSIGNED
-};
-
-
 class EthStratumClient : public PoolClient
 {
 public:
-	EthStratumClient(int const & worktimeout, int const & protocol, string const & email, bool const & submitHashrate, StratumSecure const & secureMode);
+
+	typedef enum { STRATUM = 0, ETHPROXY, ETHEREUMSTRATUM } StratumProtocol;
+
+	EthStratumClient(int const & worktimeout, string const & email, bool const & submitHashrate);
 	~EthStratumClient();
 
 	void connect();
@@ -50,16 +44,17 @@ private:
 	void connect_handler(const boost::system::error_code& ec, boost::asio::ip::tcp::resolver::iterator i);
 	void work_timeout_handler(const boost::system::error_code& ec);
 	void response_timeout_handler(const boost::system::error_code& ec);
+	void hashrate_event_handler(const boost::system::error_code& ec);
 
 	void reset_work_timeout();
 	void readline();
 	void handleResponse(const boost::system::error_code& ec);
+	void handleHashrateResponse(const boost::system::error_code& ec);
 	void readResponse(const boost::system::error_code& ec, std::size_t bytes_transferred);
 	void processReponse(Json::Value& responseObject);
+	void async_write_with_response();
 
-	cred_t * p_active;
-	cred_t m_primary;
-	cred_t m_failover;
+	PoolConnection m_connection;
 
 	string m_worker; // eth-proxy only;
 
@@ -77,7 +72,6 @@ private:
 
 	std::thread m_serviceThread;  ///< The IO service thread.
 	boost::asio::io_service m_io_service;
-	StratumSecure m_secureMode;
 	boost::asio::ip::tcp::socket *m_socket;
 	boost::asio::ssl::stream<boost::asio::ip::tcp::socket> *m_securesocket;
 
@@ -86,12 +80,13 @@ private:
 
 	boost::asio::deadline_timer m_worktimer;
 	boost::asio::deadline_timer m_responsetimer;
+	boost::asio::deadline_timer m_hashrate_event;
 	bool m_response_pending = false;
 
 	boost::asio::ip::tcp::resolver m_resolver;
 
-	int m_protocol;
 	string m_email;
+	string m_rate;
 
 	double m_nextWorkDifficulty;
 
