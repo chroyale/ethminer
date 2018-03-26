@@ -666,9 +666,9 @@ bool CLMiner::init(const h256& seed)
 			vector<unsigned char> bin_data;
 			std::stringstream fname_strm;
 
-			/* Open kernels/{device.getInfo<CL_DEVICE_VERSION>}.bin */
-			std::transform(device.getInfo<CL_DEVICE_VERSION>().begin(), device.getInfo<CL_DEVICE_VERSION>().end(), device.getInfo<CL_DEVICE_VERSION>().begin(), ::tolower);
-			fname_strm << "kernels/" << device.getInfo<CL_DEVICE_VERSION>() << ".bin";
+			/* Open kernels/{device.getInfo<CL_DEVICE_NAME>}.bin */
+			std::transform(device.getInfo<CL_DEVICE_NAME>().begin(), device.getInfo<CL_DEVICE_VERSION>().end(), device.getInfo<CL_DEVICE_NAME>().begin(), ::tolower);
+			fname_strm << "kernels/" << device.getInfo<CL_DEVICE_NAME>() << ".bin";
 
 			kernel_file.open(
 					fname_strm.str(),
