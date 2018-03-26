@@ -18,7 +18,7 @@ HunterGate(
 )
 
 if(HUNTER_ENABLED)
-	find_package(PythonInterp)
+	find_package(PythonInterp 3)
 	if(PYTHONINTERP_FOUND)
 		hunter_gate_self(
 			"${HUNTER_CACHED_ROOT}"
@@ -43,11 +43,11 @@ endif()
 
 
 project(ethminer)
-set(PROJECT_VERSION 0.14.0.dev3)
+set(PROJECT_VERSION 0.15.0.dev0)
 
 cable_set_build_type(DEFAULT Release CONFIGURATION_TYPES Release RelWithDebInfo Debug)
 
-# link_directories interprate relative paths with respect to CMAKE_CURRENT_SOURCE_DIR
+# link_directories interprets relative paths with respect to CMAKE_CURRENT_SOURCE_DIR
 cmake_policy(SET CMP0015 NEW)
 
 # let cmake autolink dependencies on windows
@@ -88,6 +88,9 @@ find_package(jsoncpp CONFIG REQUIRED)
 
 hunter_add_package(libjson-rpc-cpp)
 find_package(libjson-rpc-cpp CONFIG REQUIRED)
+
+hunter_add_package(CppNetlibUri)
+find_package(CppNetlibUri CONFIG REQUIRED)
 
 configureProject()
 

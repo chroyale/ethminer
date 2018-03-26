@@ -324,7 +324,7 @@ public:
         {
             p.ms += cp.ms;
             p.hashes += cp.hashes;
-            for (unsigned int i = 0; i < cp.minersHashes.size(); i++)
+            for (unsigned int i = 0; i < cp.minersHashes.size() && i < p.minersHashes.size(); i++)
             {
                 p.minersHashes.at(i) += cp.minersHashes.at(i);
             }
@@ -395,10 +395,10 @@ public:
 		return stream.str();
 	}
 
-	void set_pool_addresses(string primaryUrl, string primaryPort, string failoverUrl, string failoverPort) {
-		m_pool_addresses = primaryUrl + ":" + primaryPort;
-		if (failoverUrl != "")
-			m_pool_addresses += ";" + failoverUrl + ":" + failoverPort;
+	void set_pool_addresses(string host, unsigned port) {
+		stringstream ssPoolAddresses;
+		ssPoolAddresses << host << ':' << port;
+		m_pool_addresses = ssPoolAddresses.str();
 	}
 
 	string get_pool_addresses() {

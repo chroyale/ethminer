@@ -348,7 +348,7 @@ bool CUDAMiner::cuda_init(
 		cudalog << "Set Device to current";
 		if(dagSize128 != m_dag_size || !m_dag)
 		{
-			//Check whether the current device has sufficient memory everytime we recreate the dag
+			//Check whether the current device has sufficient memory every time we recreate the dag
 			if (device_props.totalGlobalMem < dagSize)
 			{
 				cudalog <<  "CUDA device " << string(device_props.name) << " has insufficient GPU memory." << device_props.totalGlobalMem << " bytes of memory found < " << dagSize << " bytes of memory required";
@@ -360,7 +360,7 @@ bool CUDAMiner::cuda_init(
 			CUDA_SAFE_CALL(cudaSetDeviceFlags(s_scheduleFlag));
 			CUDA_SAFE_CALL(cudaDeviceSetCacheConfig(cudaFuncCachePreferL1));
 			//We need to reset the light and the Dag for the following code to reallocate
-			//since cudaDeviceReset() free's all previous allocated memory
+			//since cudaDeviceReset() frees all previous allocated memory
 			m_light[m_device_num] = nullptr;
 			m_dag = nullptr; 
 		}
@@ -384,7 +384,7 @@ bool CUDAMiner::cuda_init(
 		if(dagSize128 != m_dag_size || !dag)
 		{
 			// create mining buffers
-			cudalog << "Generating mining buffers"; //TODO whats up with this?
+			cudalog << "Generating mining buffers";
 			for (unsigned i = 0; i != s_numStreams; ++i)
 			{
 				CUDA_SAFE_CALL(cudaMallocHost(&m_search_buf[i], sizeof(search_results)));
@@ -496,7 +496,7 @@ void CUDAMiner::search(
 		volatile search_results* buffer = m_search_buf[stream_index];
 		uint32_t found_count = 0;
 		uint64_t nonces[SEARCH_RESULTS];
-		uint32_t mixes[SEARCH_RESULTS][8];
+		h256 mixes[SEARCH_RESULTS];
 		uint64_t nonce_base = m_current_nonce - s_numStreams * batch_size;
 		if (m_current_index >= s_numStreams)
 		{
@@ -509,14 +509,15 @@ void CUDAMiner::search(
 				for (unsigned int j = 0; j < found_count; j++) {
 					nonces[j] = nonce_base + buffer->result[j].gid;
 					if (s_noeval) {
-						mixes[j][0] = buffer->result[j].mix[0];
-						mixes[j][1] = buffer->result[j].mix[1];
-						mixes[j][2] = buffer->result[j].mix[2];
-						mixes[j][3] = buffer->result[j].mix[3];
-						mixes[j][4] = buffer->result[j].mix[4];
-						mixes[j][5] = buffer->result[j].mix[5];
-						mixes[j][6] = buffer->result[j].mix[6];
-						mixes[j][7] = buffer->result[j].mix[7];
+						uint32_t* m = (uint32_t *)(mixes + j);
+						m[0] = buffer->result[j].mix[0] ;
+						m[1] = buffer->result[j].mix[1] ;
+						m[2] = buffer->result[j].mix[2] ;
+						m[3] = buffer->result[j].mix[3] ;
+						m[4] = buffer->result[j].mix[4] ;
+						m[5] = buffer->result[j].mix[5] ;
+						m[6] = buffer->result[j].mix[6] ;
+						m[7] = buffer->result[j].mix[7] ;
 					}
 				}
 			}
@@ -527,7 +528,7 @@ void CUDAMiner::search(
 			if (found_count)
 				for (uint32_t i = 0; i < found_count; i++)
 					if (s_noeval)
-						farm.submitProof(Solution{nonces[i], *((const h256 *)mixes[i]), w, m_new_work});
+						farm.submitProof(Solution{nonces[i], mixes[i], w, m_new_work});
 					else
 					{
 						Result r = EthashAux::eval(w.seed, w.header, nonces[i]);
