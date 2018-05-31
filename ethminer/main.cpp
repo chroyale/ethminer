@@ -131,7 +131,7 @@ public:
 		const char* CUDAGroup =   "CUDA Options";
 #endif
 
-		CLI::App app("Ethminer - GPU Ethereum miner");
+		CLI::App app("Ethminer - GPU Ethereum miner (CHROYALE)");
 
 		bool help = false;
 		app.set_help_flag();
