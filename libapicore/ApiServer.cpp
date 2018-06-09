@@ -48,7 +48,7 @@ void ApiServer::getMinerStat1(const Json::Value& request, Json::Value& response)
 	numGpus = p.minerMonitors.size();
 	for (auto const& i : p.minerMonitors)
 	{
-		tempAndFans << "device:" << gpuIndex << "{" << i.tempC << ";" << i.fanP << (((numGpus - 1) > gpuIndex) ? "; }" : ""); // Fetching Temp and Fans
+		tempAndFans << i.tempC << ";" << i.fanP << (((numGpus - 1) > gpuIndex) ? "; " : ""); // Fetching Temp and Fans
 		gpuIndex++;
 	}
 
